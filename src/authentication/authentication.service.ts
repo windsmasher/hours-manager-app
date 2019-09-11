@@ -1,6 +1,5 @@
 import userModel from "../user/user.model";
 import IUser from "../user/user.interface"
-import CommonException from "../exceptions/CommonException";
 import bcrypt from "bcryptjs";
 
 class AuthenticationService {
@@ -10,7 +9,7 @@ class AuthenticationService {
         if(
             await this.user.findOne({ login: userData.login })
         ) {
-            throw new CommonException(400, "User with this email exists");
+            throw new Error("User with this email exists.").message
         }
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(userData.password, salt);
@@ -18,7 +17,7 @@ class AuthenticationService {
             login: userData.login,
             password: hashPassword
         })
-        return user;
+        return user.save();
     }
 }
 

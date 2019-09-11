@@ -1,8 +1,7 @@
 import express from "express";
 import userModel from "../user/user.model";
-import validateUser from "../middleware/userValidation.middleware";
+import userValidation from "../middleware/userValidation.middleware";
 import AuthenticationService from './authentication.service';
-import CommonException from "../exceptions/CommonException";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Controller from "../interfaces/controller.interface";
@@ -18,14 +17,14 @@ class AuthenticationController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.post(`${this.path}/register`, validateUser(), this.registration);
+        this.router.post(`${this.path}/register`, userValidation(), this.registration);
         this.router.post(`${this.path}/login`, this.login)
     }
 
     private registration = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             const savedUser = await this.authenticationService.register(request.body);
-            response.send({ id: savedUser._id });
+            response.send(savedUser);
         } catch (error) {
             next(error);
         }
@@ -41,10 +40,10 @@ class AuthenticationController implements Controller {
                 response.header("token", token).send(token);
                 response.send(user);
             } else {
-                next(new CommonException(401, "Wrong credentials provided."));
+                next(response.status(401).send("Wrong login or password"));
             }
         } else {
-            next(new CommonException(401, "Wrong credentials provided."));
+            next(response.status(401).send("Wrong login or password"));
         }
     }
 }

@@ -1,7 +1,7 @@
 import joi from "@hapi/joi";
 import express from "express";
 
-function validateUser(): express.RequestHandler {
+function userValidation(): express.RequestHandler {
     return (request, response, next) => {
         const userValidationSchema = {
             login: joi.string().min(6).required().email(),
@@ -13,4 +13,4 @@ function validateUser(): express.RequestHandler {
     }
 }
 
-export default validateUser;
+export default userValidation;

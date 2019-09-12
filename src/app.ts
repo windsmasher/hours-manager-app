@@ -19,10 +19,6 @@ class App {
         })
     }
 
-    // public getServer() {
-    //     return this.app;
-    // }
-
     private initializeMiddlewares() {
         this.app.use(bodyParser.json());
     }

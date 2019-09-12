@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import express from "express"
 import userModel from '../user/user.model';
 
-const auth = async (request: any, response: express.Response, next: express.NextFunction) => {
+const userAuth = async (request: any, response: express.Response, next: express.NextFunction) => {
     const token = request.header("token");
     if (!token) return response.status(401).send("Access denied.");
     try {
@@ -20,4 +20,4 @@ const auth = async (request: any, response: express.Response, next: express.Next
     }
 }
 
-export default auth;
+export default userAuth;

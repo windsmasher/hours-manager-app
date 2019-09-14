@@ -21,6 +21,11 @@ class ManagedHoursService {
         return this.managedHoursModel.findOneAndUpdate({ _id: eventId }, { $set: { status: newStatus } }, { new: true });
     }
 
+    public async findEventsByStatusAndUserId(status: number, userId: string | null): Promise<IManagedHoursModel[]> {
+        if (userId === null) return this.managedHoursModel.find({ status: status });
+        return this.managedHoursModel.find({ userId: userId, status: status });
+    }
+
 }
 
 export default ManagedHoursService;

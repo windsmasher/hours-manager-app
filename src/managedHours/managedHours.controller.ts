@@ -3,9 +3,10 @@ import express from "express";
 import adminAuth from "../middleware/adminAuth.middleware";
 import userAuth from "../middleware/userAuth.middleware";
 import ManagedHoursService from "./managedHours.service";
-import { IManagedHours } from "./managedHours.interface";
+import { IManagedHours, IManagedHoursModel } from "./managedHours.interface";
 import WorkHoursService from "../workHours/workHours.service";
 import IWorkHours from "../workHours/workHours.interface";
+import IReservationList from "../interfaces/reservationList.interface";
 
 class ManagedHoursController implements Controller {
     public path = "/managedhours";
@@ -19,13 +20,15 @@ class ManagedHoursController implements Controller {
 
     private initializeRoutes() {
         this.router.post(`${this.path}/reserve`, userAuth, this.reserveHour);
+        this.router.get(`${this.path}/reserve`, userAuth, this.userReservations);
         this.router.post(`${this.path}/approve`, adminAuth, this.approveHour);
         this.router.post(`${this.path}/block`, adminAuth, this.blockHour);
+        this.router.get(`${this.path}/reservations`, adminAuth, this.allReservations);
     }
 
     private reserveHour = async (request: any, response: express.Response, next: express.NextFunction) => {
         const workHours: IWorkHours | null = await this.workHoursService.getWorkHours();
-        if (workHours) { 
+        if (workHours) {
             const availableHours = workHours.hours;
             const approvedHour = availableHours.filter(hour => hour === request.body.hour);
             if (!approvedHour.length) return response.status(400).send("This hour is not avaiable to reserve.")
@@ -48,10 +51,8 @@ class ManagedHoursController implements Controller {
 
     private approveHour = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const reservedEventToApprove = await this.managedHoursService.findEventByDateAndStatus(request.body.date, request.body.hour, 1);
-        console.log("reservedEventToApprove", reservedEventToApprove);
         if (reservedEventToApprove) {
             const changedStatusEvent = await this.managedHoursService.changeStatus(reservedEventToApprove._id, 2);
-            console.log("changedStatusEvent", changedStatusEvent);
             response.status(200).send(changedStatusEvent);
         } else {
             response.status(400).send("There is no event in this date to approve.");
@@ -77,6 +78,25 @@ class ManagedHoursController implements Controller {
             response.status(200).send(savedBlockedHour);
         } else {
             response.status(400).send("Database connection error.")
+        }
+    }
+
+    private allReservations = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const result = await this.getListOfReservations(null);
+        response.status(200).send(result);
+    }
+
+    private userReservations = async (request: any, response: express.Response, next: express.NextFunction) => {
+        const result = await this.getListOfReservations(request.user._id);
+        response.status(200).send(result);
+    }
+
+    private getListOfReservations = async (userId: string | null): Promise<IReservationList> => {
+        const reservedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(1, userId);
+        const approvedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(2, userId);
+        return {
+            reservedHours: reservedHours.length ? reservedHours : "No reserved hours",
+            approvedHour: approvedHours.length ? approvedHours : "No approved hours"
         }
     }
 }

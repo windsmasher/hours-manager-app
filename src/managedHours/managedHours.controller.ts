@@ -3,16 +3,19 @@ import express from "express";
 import adminAuth from "../middleware/adminAuth.middleware";
 import userAuth from "../middleware/userAuth.middleware";
 import ManagedHoursService from "./managedHours.service";
-import { IManagedHours, IManagedHoursModel } from "./managedHours.interface";
+import { IManagedHours } from "./managedHours.interface";
 import WorkHoursService from "../workHours/workHours.service";
 import IWorkHours from "../workHours/workHours.interface";
-import IReservationList from "../interfaces/reservationList.interface";
+import StatisticUtilites from "./utilities/statistic.utility";
+import ListingReservationsUtility from "./utilities/listingReservations.utility";
 
 class ManagedHoursController implements Controller {
     public path = "/managedhours";
     public router = express.Router();
     private managedHoursService = new ManagedHoursService();
     private workHoursService = new WorkHoursService();
+    private statisticUtilities = new StatisticUtilites();
+    private listingReservations = new ListingReservationsUtility();
 
     constructor() {
         this.initializeRoutes();
@@ -84,22 +87,13 @@ class ManagedHoursController implements Controller {
     }
 
     private allReservations = async (request: express.Request, response: express.Response) => {
-        const result = await this.getListOfReservations(null);
+        const result = await this.listingReservations.getListOfReservations(null);
         response.status(200).send(result);
     }
 
     private userReservations = async (request: any, response: express.Response) => {
-        const result = await this.getListOfReservations(request.user._id);
+        const result = await this.listingReservations.getListOfReservations(request.user._id);
         response.status(200).send(result);
-    }
-
-    private getListOfReservations = async (userId: string | null): Promise<IReservationList> => {
-        const reservedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(1, userId);
-        const approvedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(2, userId);
-        return {
-            reservedHours: reservedHours.length ? reservedHours : "No reserved hours",
-            approvedHour: approvedHours.length ? approvedHours : "No approved hours"
-        }
     }
 
     private deleteReservation = async (request: express.Request, response: express.Response) => {
@@ -108,39 +102,12 @@ class ManagedHoursController implements Controller {
     }
 
     private statistic = async (request: express.Request, response: express.Response) => {
+        if(!request.body.fromDate || !request.body.toDate) return response.status(400).send("Bad request.")
         let fromDate = new Date(request.body.fromDate);
         const toDate = new Date(request.body.toDate);
         if(fromDate > toDate) return response.status(400).send("Wrong date range.")
-        const result = await this.getStatsForRange(fromDate, toDate);
+        const result = await this.statisticUtilities.getStatsForRange(fromDate, toDate);
         response.status(200).send(result);
-    }
-
-    private async getStatsForRange(fromDate: Date, toDate: Date) {
-        let day = new Date(fromDate);
-        const stats = [];
-        do {
-            let oneDayStats = await this.getStatsForDay(day);
-            stats.push(oneDayStats);
-            day = new Date(day.setDate(day.getDate()+1));
-        } while(day <= toDate)
-        return stats;
-    }
-
-    private async getStatsForDay(date: Date) {
-        const blocked = await this.managedHoursService.findEventsByDateAndStatus(date, 0);
-        const reservations = await this.managedHoursService.findEventsByDateAndStatus(date, 1);
-        const approved = await this.managedHoursService.findEventsByDateAndStatus(date, 2);
-        const work = await this.workHoursService.getWorkHours();
-        let freeHours: number | string;
-        work ? freeHours = work.hours.length - reservations.length - approved.length - blocked.length : freeHours = "No information."
-        return {
-            [date.toString()]: {
-                reservations: reservations.length,
-                approvedHours: approved.length,
-                blockedHours: blocked.length,
-                freeHours: freeHours
-            }
-        }
     }
 }
 

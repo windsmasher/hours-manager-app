@@ -4,11 +4,11 @@ import { IManagedHours, IManagedHoursModel } from "./managedHours.interface";
 class ManagedHoursService {
     public managedHoursModel = ManagedHoursModel;
 
-    public async findEventByDate(date: Date, hour: number): Promise<IManagedHoursModel | null> {
+    public async findEventByDateHour(date: Date, hour: number): Promise<IManagedHoursModel | null> {
         return this.managedHoursModel.findOne({ date: date, hour: hour });
     }
 
-    public async findEventByDateAndStatus(date: Date, hour: number, status: number): Promise<IManagedHoursModel | null> {
+    public async findEventByDateHourStatus(date: Date, hour: number, status: number): Promise<IManagedHoursModel | null> {
         return this.managedHoursModel.findOne({ date: date, hour: hour, status: status });
     }
 
@@ -26,6 +26,13 @@ class ManagedHoursService {
         return this.managedHoursModel.find({ userId: userId, status: status });
     }
 
+    public deleteReservation(eventId: string) {
+        return this.managedHoursModel.findByIdAndRemove(eventId);
+    }
+
+    public findEventsByDateAndStatus(date: Date, status: number) {
+        return this.managedHoursModel.find({date: date, status: status});
+    }
 }
 
 export default ManagedHoursService;

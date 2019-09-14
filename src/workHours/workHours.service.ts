@@ -10,8 +10,8 @@ class WorkHoursService {
         return workHours.save();
     }
 
-    public async getWorkHours() {
-        return this.workHoursModel.find();
+    public async getWorkHours(): Promise<IWorkHours | null> {
+        return this.workHoursModel.findOne();
     }
 }
 

@@ -1,6 +1,7 @@
-interface workHours {
-    _id?: string;
-    hours: number;
+import { Document } from "mongoose";
+
+interface workHours extends Document {
+    hours: [Number];
 }
 
 export default workHours;

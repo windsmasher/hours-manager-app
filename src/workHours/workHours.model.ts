@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+import IWorkHours from "./workHours.interface";
 
-const userSchema: mongoose.Schema = new mongoose.Schema({
+const workHoursSchema: mongoose.Schema = new mongoose.Schema({
     hours: {
         type: [Number],
         required: true
     }
 })
 
-export default mongoose.model("WorkHours", userSchema);
+export default mongoose.model<IWorkHours>("WorkHours", workHoursSchema);

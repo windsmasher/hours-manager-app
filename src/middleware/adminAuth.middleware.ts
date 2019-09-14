@@ -11,6 +11,7 @@ const userAuth = async (request: any, response: express.Response, next: express.
         const user: any = await userModel.findById(id);
         if (user) {
             if(user.login === "admin") {
+                request.user = user;
                 next();
             } else {
                 next(response.status(400).send("You have to be admin for this action"))

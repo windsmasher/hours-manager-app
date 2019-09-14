@@ -21,7 +21,7 @@ class WorkHoursController implements Controller {
             const savedWorkHours = await this.workHoursService.cleanCollectionAndCreateWorkHours(request.body);
             response.send(savedWorkHours);
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 }

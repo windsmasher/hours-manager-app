@@ -32,16 +32,24 @@ class ManagedHoursController implements IController {
 
     // this function returns middleware for reserve (1) or block action (0) because they have the same logic
     private makeHourStatus = (status: number): express.RequestHandler => {
-        return async (request: IRequestWithUser, response: express.Response) => {
+        return async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
             if (!request.user) return response.status(401).send("No user information provided.");
-            const workHours: IWorkHours | null = await this.workHoursService.getWorkHours();
-            if (!workHours) return response.status(400).send("Database connection error.")
-            const availableHours = workHours.hours;
-            const approvedHour = availableHours.filter(hour => hour === request.body.hour);
-            if (!approvedHour.length) return response.status(400).send("This hour is not in work hours.")
-            const existingEvent = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
-            if (existingEvent && (existingEvent.status === 1 || existingEvent.status === 2)) return response.status(400).send("There is a reservation on this date.")
-            if (existingEvent && existingEvent.status === 0) return response.status(400).send("This date is blocked.")
+            try {
+                const workHours: IWorkHours | null = await this.workHoursService.getWorkHours();
+                if (!workHours) return response.status(400).send("Database connection error.")
+                const availableHours = workHours.hours;
+                const approvedHour = availableHours.filter(hour => hour === request.body.hour);
+                if (!approvedHour.length) return response.status(400).send("This hour is not in work hours.")
+            } catch (error) {
+                next(error);
+            }
+            try {
+                const existingEvent = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
+                if (existingEvent && (existingEvent.status === 1 || existingEvent.status === 2)) return response.status(400).send("There is a reservation on this date.")
+                if (existingEvent && existingEvent.status === 0) return response.status(400).send("This date is blocked.")
+            } catch (error) {
+                next(error);
+            }
             const newEvent: IManagedHours = {
                 userId: request.user._id,
                 status: status,
@@ -49,45 +57,69 @@ class ManagedHoursController implements IController {
                 hour: request.body.hour,
                 title: request.body.title
             }
-            const savedEvent = await this.managedHoursService.createReservationHour(newEvent);
-            response.status(201).send(savedEvent);
+            try {
+                const savedEvent = await this.managedHoursService.createReservationHour(newEvent);
+                response.status(201).send(savedEvent);
+            } catch (error) {
+                next(error)
+            }
         }
     }
 
-    private approveHour = async (request: express.Request, response: express.Response) => {
-        const reservedEventToApprove = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
-        if (!reservedEventToApprove) return response.status(400).send("There is no event in this date to approve.");
-        if (reservedEventToApprove.status === 1) {
-            const changedStatusEvent = await this.managedHoursService.changeStatus(reservedEventToApprove._id, 2);
-            response.status(200).send(changedStatusEvent);
-        } else {
-            response.status(400).send("This hour is blocked or approved already.");
+    private approveHour = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const reservedEventToApprove = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
+            if (!reservedEventToApprove) return response.status(400).send("There is no event in this date to approve.");
+            if (reservedEventToApprove.status === 1) {
+                const changedStatusEvent = await this.managedHoursService.changeStatus(reservedEventToApprove._id, 2);
+                response.status(200).send(changedStatusEvent);
+            } else {
+                response.status(400).send("This hour is blocked or approved already.");
+            }
+        } catch (error) {
+            next(error)
         }
     }
 
-    private allReservations = async (request: express.Request, response: express.Response) => {
-        const result = await this.managedHoursUtilities.getListOfReservations();
-        response.status(200).send(result);
+    private allReservations = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const result = await this.managedHoursUtilities.getListOfReservations();
+            response.status(200).send(result);
+        } catch (error) {
+            next(error)
+        }
     }
 
-    private userReservations = async (request: IRequestWithUser, response: express.Response) => {
+    private userReservations = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         if (!request.user) return response.status(401).send("No user information provided.");
-        const result = await this.managedHoursUtilities.getListOfReservations(request.user._id);
-        response.status(200).send(result);
+        try {
+            const result = await this.managedHoursUtilities.getListOfReservations(request.user._id);
+            response.status(200).send(result);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    private deleteReservation = async (request: express.Request, response: express.Response) => {
-        const deletedReservation = await this.managedHoursService.deleteReservation(request.params.id);
-        response.status(200).send(deletedReservation);
+    private deleteReservation = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const deletedReservation = await this.managedHoursService.deleteReservation(request.params.id);
+            response.status(200).send(deletedReservation);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    private statistic = async (request: express.Request, response: express.Response) => {
+    private statistic = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         if (!request.body.fromDate || !request.body.toDate) return response.status(400).send("Bad request.")
         let fromDate = new Date(request.body.fromDate);
         const toDate = new Date(request.body.toDate);
         if (fromDate > toDate) return response.status(400).send("Wrong date range.")
-        const result = await this.managedHoursUtilities.getStatsForRange(fromDate, toDate);
-        response.status(200).send(result);
+        try {
+            const result = await this.managedHoursUtilities.getStatsForRange(fromDate, toDate);
+            response.status(200).send(result);
+        } catch (error) {
+            next(error);
+        }
     }
 }
 

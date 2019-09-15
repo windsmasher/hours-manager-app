@@ -30,18 +30,22 @@ class AuthenticationController implements IController {
     }
 
     private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const user: IUserModel | null = await this.authenticationService.findUserByLogin(request.body.login)
-        if (user) {
-            const isPasswordMatching = await bcrypt.compare(request.body.password, user.password)
-            if (isPasswordMatching) {
-                const token = jwt.sign({ _id: user._id }, <string>process.env.TOKEN_SECRET);
-                response.header("token", token).send(token);
-                response.send(user);
+        try {
+            const user: IUserModel | null = await this.authenticationService.findUserByLogin(request.body.login)
+            if (user) {
+                const isPasswordMatching = await bcrypt.compare(request.body.password, user.password)
+                if (isPasswordMatching) {
+                    const token = jwt.sign({ _id: user._id }, <string>process.env.TOKEN_SECRET);
+                    response.header("token", token).send(token);
+                    response.send(user);
+                } else {
+                    next(response.status(401).send("Wrong login or password"));
+                }
             } else {
                 next(response.status(401).send("Wrong login or password"));
             }
-        } else {
-            next(response.status(401).send("Wrong login or password"));
+        } catch (error) {
+            next(error);
         }
     }
 }

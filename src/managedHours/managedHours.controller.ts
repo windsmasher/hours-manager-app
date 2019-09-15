@@ -6,8 +6,7 @@ import ManagedHoursService from "./managedHours.service";
 import { IManagedHours } from "./managedHours.interface";
 import WorkHoursService from "../workHours/workHours.service";
 import IWorkHours from "../workHours/workHours.interface";
-import StatisticUtilites from "./utilities/statistic.utility";
-import ListingReservationsUtility from "./utilities/listingReservations.utility";
+import ManagedHoursUtilities from "./managedHours.utilities";
 import IRequestWithUser from "../interfaces/requestWithUser.interface";
 
 class ManagedHoursController implements IController {
@@ -15,8 +14,7 @@ class ManagedHoursController implements IController {
     public router = express.Router();
     private managedHoursService = new ManagedHoursService();
     private workHoursService = new WorkHoursService();
-    private statisticUtilities = new StatisticUtilites();
-    private listingReservations = new ListingReservationsUtility();
+    private managedHoursUtilities = new ManagedHoursUtilities();
 
     constructor() {
         this.initializeRoutes();
@@ -32,7 +30,7 @@ class ManagedHoursController implements IController {
         this.router.get(`${this.path}/statistic`, adminAuth, this.statistic);
     }
 
-// this function returns middleware for reserve (1) or block action (0) because they have the same logic
+    // this function returns middleware for reserve (1) or block action (0) because they have the same logic
     private changeHourStatus = (status: number): express.RequestHandler => {
         return async (request: IRequestWithUser, response: express.Response) => {
             if (!request.user) return response.status(401).send("No user information provided.");
@@ -58,7 +56,7 @@ class ManagedHoursController implements IController {
 
     private approveHour = async (request: express.Request, response: express.Response) => {
         const reservedEventToApprove = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
-        if(!reservedEventToApprove) return response.status(400).send("There is no event in this date to approve.");
+        if (!reservedEventToApprove) return response.status(400).send("There is no event in this date to approve.");
         if (reservedEventToApprove.status === 1) {
             const changedStatusEvent = await this.managedHoursService.changeStatus(reservedEventToApprove._id, 2);
             response.status(200).send(changedStatusEvent);
@@ -68,13 +66,13 @@ class ManagedHoursController implements IController {
     }
 
     private allReservations = async (request: express.Request, response: express.Response) => {
-        const result = await this.listingReservations.getListOfReservations(null);
+        const result = await this.managedHoursUtilities.getListOfReservations(null);
         response.status(200).send(result);
     }
 
     private userReservations = async (request: IRequestWithUser, response: express.Response) => {
         if (!request.user) return response.status(401).send("No user information provided.");
-        const result = await this.listingReservations.getListOfReservations(request.user._id);
+        const result = await this.managedHoursUtilities.getListOfReservations(request.user._id);
         response.status(200).send(result);
     }
 
@@ -88,7 +86,7 @@ class ManagedHoursController implements IController {
         let fromDate = new Date(request.body.fromDate);
         const toDate = new Date(request.body.toDate);
         if (fromDate > toDate) return response.status(400).send("Wrong date range.")
-        const result = await this.statisticUtilities.getStatsForRange(fromDate, toDate);
+        const result = await this.managedHoursUtilities.getStatsForRange(fromDate, toDate);
         response.status(200).send(result);
     }
 }

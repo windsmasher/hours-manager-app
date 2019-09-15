@@ -12,7 +12,7 @@ const userAuth = async (request: IRequestWithUser, response: express.Response, n
         const user = await UserModel.findById(verificationResponse._id);
         if (user) {
             // better id then login, but it's only for task purpose
-            if(user.login === "admin") {
+            if (user.login === "admin") {
                 request.user = user;
                 next();
             } else {

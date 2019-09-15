@@ -1,10 +1,21 @@
-import ManagedHoursService from "../managedHours.service";
-import WorkHoursService from "../../workHours/workHours.service";
-import IStatistic from "../../interfaces/statistic.interface";
+import ManagedHoursService from "./managedHours.service";
+import WorkHoursService from "../workHours/workHours.service";
+import IStatistic from "../interfaces/statistic.interface";
+import { IManagedHoursModel } from "./managedHours.interface";
+import IReservationList from "../interfaces/reservationList.interface";
 
-class StatisticUtilites {
+class ManagedHoursUtilities {
     private managedHoursService = new ManagedHoursService();
     private workHoursService = new WorkHoursService();
+
+    public getListOfReservations = async (userId: string | null): Promise<IReservationList> => {
+        const reservedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(1, userId);
+        const approvedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(2, userId);
+        return {
+            reservedHours: reservedHours.length ? reservedHours : "No reserved hours",
+            approvedHour: approvedHours.length ? approvedHours : "No approved hours"
+        }
+    }
 
     public getStatsForRange = async (fromDate: Date, toDate: Date): Promise<IStatistic[]> => {
         let day = new Date(fromDate);
@@ -41,4 +52,4 @@ class StatisticUtilites {
     }
 }
 
-export default StatisticUtilites;
+export default ManagedHoursUtilities;

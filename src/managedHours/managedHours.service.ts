@@ -27,7 +27,7 @@ class ManagedHoursService {
     }
 
     public async findEventsByDateAndStatus(date: Date, status: number): Promise<IManagedHoursModel[]> {
-        return this.managedHoursModel.find({date: date, status: status});
+        return this.managedHoursModel.find({ date: date, status: status });
     }
 }
 

@@ -8,7 +8,7 @@ const managedHoursSchema: mongoose.Schema = new mongoose.Schema({
     },
     status: {
         type: Number, // 0 - blocked, 1 - reserved, 2 - approved
-        required: true   
+        required: true
     },
     date: {
         type: Date,

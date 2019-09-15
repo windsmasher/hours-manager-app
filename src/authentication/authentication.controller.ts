@@ -5,6 +5,7 @@ import AuthenticationService from './authentication.service';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Controller from "../interfaces/controller.interface";
+import { IUserModel } from "../user/user.interface";
 
 class AuthenticationController implements Controller {
     public path = "/auth";
@@ -31,8 +32,7 @@ class AuthenticationController implements Controller {
     }
 
     private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const user: any = await this.user.findOne({ login: request.body.login });
-        console.log(user);
+        const user: IUserModel | null = await this.authenticationService.findUserByLogin(request.body.login)
         if (user) {
             const isPasswordMatching = await bcrypt.compare(request.body.password, user.password)
             if (isPasswordMatching) {

@@ -24,13 +24,20 @@ class StatisticUtilites {
         let freeHours: number | string;
         work ? freeHours = work.hours.length - reservations.length - approved.length - blocked.length : freeHours = "No information."
         return {
-            [date.toString()]: {
+            [this.getDateToDisplay(date)]: {
                 reservations: reservations.length,
                 approvedHours: approved.length,
                 blockedHours: blocked.length,
                 freeHours: freeHours
             }
         }
+    }
+
+    private getDateToDisplay = (date: Date): string => {
+        const dd = date.getDate();
+        const mm = date.getMonth();
+        const yyyy = date.getFullYear();
+        return `${dd}-${mm}-${yyyy}`
     }
 }
 

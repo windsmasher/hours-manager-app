@@ -33,6 +33,10 @@ class ManagedHoursService {
     public findEventsByDateAndStatus(date: Date, status: number) {
         return this.managedHoursModel.find({date: date, status: status});
     }
+
+    public findEventsByStatus(status: number) {
+        return this.managedHoursModel.find({status: status});
+    }
 }
 
 export default ManagedHoursService;

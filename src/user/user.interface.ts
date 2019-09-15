@@ -1,7 +1,11 @@
-interface user {
-    _id?: string;
+import { Document } from "mongoose";
+
+export interface IUser {
     login: string;
     password: string;
 }
 
-export default user;
+export interface IUserModel extends Document {
+    login: string;
+    password: string;
+}

@@ -1,5 +1,4 @@
 import express from "express";
-import userModel from "../user/user.model";
 import userValidation from "../middleware/userValidation.middleware";
 import AuthenticationService from './authentication.service';
 import bcrypt from "bcryptjs";
@@ -11,7 +10,6 @@ class AuthenticationController implements Controller {
     public path = "/auth";
     public router = express.Router();
     public authenticationService = new AuthenticationService();
-    private user = userModel;
 
     constructor() {
         this.initializeRoutes();

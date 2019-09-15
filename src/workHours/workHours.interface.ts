@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 
-interface IWorkHours extends Document {
+interface IWorkHoursModel extends Document {
     hours: [Number];
 }
 
-export default IWorkHours;
+export default IWorkHoursModel;

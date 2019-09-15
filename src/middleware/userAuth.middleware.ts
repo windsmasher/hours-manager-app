@@ -10,14 +10,11 @@ const userAuth = async (request: IRequestWithUser, response: express.Response, n
     try {
         const verificationResponse = jwt.verify(token, <string>process.env.TOKEN_SECRET) as IIdStoredInToken;
         const user = await UserModel.findById(verificationResponse._id);
-        if (user) {
-            request.user = user;
-            next();
-        } else {
-            next(response.status(400).send("Invalid token"))
-        }
+        if (!user) return response.status(403).send("Invalid token")
+        request.user = user;
+        next();
     } catch (error) {
-        next(response.status(400).send("Invalid token"))
+        next(response.status(403).send("Invalid token"))
     }
 }
 

@@ -1,8 +1,9 @@
 import ManagedHoursModel from "./managedHours.model";
 import { IManagedHours, IManagedHoursModel } from "./managedHours.interface";
+import { Model } from "mongoose";
 
 class ManagedHoursService {
-    public managedHoursModel = ManagedHoursModel;
+    public managedHoursModel: Model<IManagedHoursModel> = ManagedHoursModel;
 
     public async findEventByDateHour(date: Date, hour: number): Promise<IManagedHoursModel | null> {
         return this.managedHoursModel.findOne({ date: date, hour: hour });
@@ -17,9 +18,12 @@ class ManagedHoursService {
         return this.managedHoursModel.findOneAndUpdate({ _id: eventId }, { $set: { status: newStatus } }, { new: true });
     }
 
-    public async findEventsByStatusAndUserId(status: number, userId: string | null): Promise<IManagedHoursModel[]> {
-        if (userId === null) return this.managedHoursModel.find({ status: status });
+    public async findEventsByStatusAndUserId(status: number, userId: string): Promise<IManagedHoursModel[]> {
         return this.managedHoursModel.find({ userId: userId, status: status });
+    }
+
+    public async findEventsByStatus(status: number): Promise<IManagedHoursModel[]> {
+        return this.managedHoursModel.find({status: status});
     }
 
     public async deleteReservation(eventId: string): Promise<IManagedHoursModel | null> {

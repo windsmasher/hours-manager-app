@@ -1,16 +1,17 @@
 import WorkHoursModel from "./workHours.model";
-import IWorkHours from "./workHours.interface";
+import IWorkHoursModel from "./workHours.interface";
+import { Model } from "mongoose";
 
 class WorkHoursService {
-    public workHoursModel = WorkHoursModel;
+    public workHoursModel: Model<IWorkHoursModel> = WorkHoursModel;
 
-    public async cleanCollectionAndCreateWorkHours(workHoursData: IWorkHours): Promise<IWorkHours> {
+    public async cleanCollectionAndCreateWorkHours(workHoursData: IWorkHoursModel): Promise<IWorkHoursModel> {
         await this.workHoursModel.remove({});
         const workHours = await new this.workHoursModel(workHoursData);
         return workHours.save();
     }
 
-    public async getWorkHours(): Promise<IWorkHours | null> {
+    public async getWorkHours(): Promise<IWorkHoursModel | null> {
         return this.workHoursModel.findOne();
     }
 }

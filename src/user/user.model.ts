@@ -12,6 +12,11 @@ const userSchema: mongoose.Schema = new mongoose.Schema({
         type: String,
         required: true,
         min: 6
+    },
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 })
 

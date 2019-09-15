@@ -8,9 +8,16 @@ class ManagedHoursUtilities {
     private managedHoursService = new ManagedHoursService();
     private workHoursService = new WorkHoursService();
 
-    public getListOfReservations = async (userId: string | null): Promise<IReservationList> => {
-        const reservedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(1, userId);
-        const approvedHours: IManagedHoursModel[] = await this.managedHoursService.findEventsByStatusAndUserId(2, userId);
+    public getListOfReservations = async (userId?: string): Promise<IReservationList> => {
+        let reservedHours: IManagedHoursModel[] = [];
+        let approvedHours: IManagedHoursModel[] = [];
+        if (userId) {
+            reservedHours = await this.managedHoursService.findEventsByStatusAndUserId(1, userId);
+            approvedHours = await this.managedHoursService.findEventsByStatusAndUserId(2, userId);
+        } else {
+            reservedHours = await this.managedHoursService.findEventsByStatus(1);
+            approvedHours = await this.managedHoursService.findEventsByStatus(2);
+        }
         return {
             reservedHours: reservedHours.length ? reservedHours : "No reserved hours",
             approvedHour: approvedHours.length ? approvedHours : "No approved hours"

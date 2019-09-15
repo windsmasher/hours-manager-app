@@ -1,9 +1,10 @@
 import UserModel from "../user/user.model";
 import { IUser, IUserModel } from "../user/user.interface"
 import bcrypt from "bcryptjs";
+import { Model } from "mongoose";
 
 class AuthenticationService {
-    public userModel = UserModel;
+    public userModel: Model<IUserModel> = UserModel;
 
     public async register(userData: IUser): Promise<IUserModel> {
         if (

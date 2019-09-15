@@ -23,7 +23,7 @@ class AuthenticationController implements IController {
     private registration = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             const savedUser = await this.authenticationService.register(request.body);
-            response.send(savedUser);
+            response.status(201).send(savedUser._id);
         } catch (error) {
             next(error);
         }

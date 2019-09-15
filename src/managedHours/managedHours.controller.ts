@@ -1,6 +1,5 @@
 import IController from "../interfaces/controller.interface";
 import express from "express";
-import adminAuth from "../middleware/adminAuth.middleware";
 import userAuth from "../middleware/userAuth.middleware";
 import ManagedHoursService from "./managedHours.service";
 import { IManagedHours } from "./managedHours.interface";
@@ -8,6 +7,7 @@ import WorkHoursService from "../workHours/workHours.service";
 import IWorkHours from "../workHours/workHours.interface";
 import ManagedHoursUtilities from "./managedHours.utilities";
 import IRequestWithUser from "../interfaces/requestWithUser.interface";
+import adminAuth from "../middleware/adminAuth.middleware";
 
 class ManagedHoursController implements IController {
     public path = "/managedhours";
@@ -21,17 +21,17 @@ class ManagedHoursController implements IController {
     }
 
     private initializeRoutes() {
-        this.router.post(`${this.path}/reserve`, userAuth, this.changeHourStatus(1));
+        this.router.post(`${this.path}/reserve`, userAuth, this.makeHourStatus(1));
         this.router.get(`${this.path}/reserve`, userAuth, this.userReservations);
         this.router.delete(`${this.path}/reserve/:id`, userAuth, this.deleteReservation);
-        this.router.post(`${this.path}/approve`, adminAuth, this.approveHour);
-        this.router.post(`${this.path}/block`, adminAuth, this.changeHourStatus(0));
-        this.router.get(`${this.path}/reservations`, adminAuth, this.allReservations);
-        this.router.get(`${this.path}/statistic`, adminAuth, this.statistic);
+        this.router.post(`${this.path}/approve`, userAuth, adminAuth, this.approveHour);
+        this.router.post(`${this.path}/block`, userAuth, adminAuth, this.makeHourStatus(0));
+        this.router.get(`${this.path}/reservations`, userAuth, adminAuth, this.allReservations);
+        this.router.get(`${this.path}/statistic`, userAuth, adminAuth, this.statistic);
     }
 
     // this function returns middleware for reserve (1) or block action (0) because they have the same logic
-    private changeHourStatus = (status: number): express.RequestHandler => {
+    private makeHourStatus = (status: number): express.RequestHandler => {
         return async (request: IRequestWithUser, response: express.Response) => {
             if (!request.user) return response.status(401).send("No user information provided.");
             const workHours: IWorkHours | null = await this.workHoursService.getWorkHours();
@@ -50,7 +50,7 @@ class ManagedHoursController implements IController {
                 title: request.body.title
             }
             const savedEvent = await this.managedHoursService.createReservationHour(newEvent);
-            response.status(200).send(savedEvent);
+            response.status(201).send(savedEvent);
         }
     }
 
@@ -66,7 +66,7 @@ class ManagedHoursController implements IController {
     }
 
     private allReservations = async (request: express.Request, response: express.Response) => {
-        const result = await this.managedHoursUtilities.getListOfReservations(null);
+        const result = await this.managedHoursUtilities.getListOfReservations();
         response.status(200).send(result);
     }
 

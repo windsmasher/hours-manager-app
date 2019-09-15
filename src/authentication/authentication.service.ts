@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 class AuthenticationService {
     public userModel = UserModel;
 
-    public async register(userData: IUser) {
+    public async register(userData: IUser): Promise<IUserModel> {
         if (
             await this.userModel.findOne({ login: userData.login })
         ) {

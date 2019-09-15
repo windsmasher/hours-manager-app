@@ -1,0 +1,53 @@
+﻿Stwórz proszę back-end, na który składa się:
+1. Uproszczony system użytkowników. Rejestracja i logowanie. Podczas rejestracji sprawdzane jest, czy hasło ma min. 6 znaków, czy login to e-mail oraz czy taki sam e-mail już nie istnieje.
+Możesz wykorzystać gotowy moduł, możesz napisać to samemu. Nie musi to być np. za pomocą passport.js, szkoda czasu na dokładną implementację. Logowanie może po prostu zwracać informację czy się udało, czy nie.
+Pamiętaj o bezpiecznym przechowywaniu danych.
+
+2. Kalendarza rezerwacji.
+   1. Punkt API, który pozwala zablokować w wybranym dniu na wybraną godzinę (1h) kalendarz.
+
+   2. Punkt API do zapisu jakie godziny są codziennie możliwe do rezerwacji.
+
+   3. Punkt API do zarezerwowania terminu, podaje się godzinę (rezerwacja na 1h), dzień, tytuł. Sprawdza, czy termin możliwy do rezerwacji, czy nie jest zablokowany, ani zarezerwowany już wcześniej. Ten punkt API powinien zapisywać również użytkownika, który wybrał datę. 
+Domyślnie rezerwacja nie jest potwierdzona.
+
+   4. Punkt API do pobierania wszystkich rezerwacji.
+
+   5. Punkt API do usuwania wybranej rezerwacji.
+
+   6. Punkt API do potwierdzenia wybranego terminu rezerwacji.
+
+   7. Punkt API, w którym użytkownik może pobrać wszystkie swoje rezerwacje i zobaczyć czy są potwierdzone.
+
+
+Całość pozwala na stworzenie kalendarza rezerwacji, gdzie:
+a) Admin wybiera godziny pracy
+b) Admin blokuje terminy gdy go nie ma
+c) Użytkownik wybiera godzinę konsultacji
+d) Admin potwierdza godzinę konsultacji
+e) Admin i Użytkownik mogą pobrać kalendarze
+
+      1. Statystyki. Punkt API, który pozwala pobrać statystyki rezerwacji i wolnych jeszcze godzin. Niech odsyła obiekt przypominający ten:
+{
+  "2019-08-23": {
+        "reservations": 3,
+        "freeHours": 5,
+        "blockedHours": 0
+  },
+  "2019-08-24": {
+        "reservations": 0,
+        "freeHours": 6,
+        "blockedHours": 2
+  },
+  "2019-08-25": {
+        "reservations": 7,
+        "freeHours": 0,
+        "blockedHours": 1
+  }
+}
+
+
+Można wybrać zakres dat od do.
+
+
+4. Pamiętaj o dokumentacji.

@@ -57,12 +57,13 @@ class ManagedHoursController implements IController {
     }
 
     private approveHour = async (request: express.Request, response: express.Response) => {
-        const reservedEventToApprove = await this.managedHoursService.findEventByDateHourStatus(request.body.date, request.body.hour, 1);
-        if (reservedEventToApprove) {
+        const reservedEventToApprove = await this.managedHoursService.findEventByDateHour(request.body.date, request.body.hour);
+        if(!reservedEventToApprove) return response.status(400).send("There is no event in this date to approve.");
+        if (reservedEventToApprove.status === 1) {
             const changedStatusEvent = await this.managedHoursService.changeStatus(reservedEventToApprove._id, 2);
             response.status(200).send(changedStatusEvent);
         } else {
-            response.status(400).send("There is no event in this date to approve.");
+            response.status(400).send("This hour is blocked or approved already.");
         }
     }
 

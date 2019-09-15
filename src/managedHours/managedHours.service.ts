@@ -8,16 +8,12 @@ class ManagedHoursService {
         return this.managedHoursModel.findOne({ date: date, hour: hour });
     }
 
-    public async findEventByDateHourStatus(date: Date, hour: number, status: number): Promise<IManagedHoursModel | null> {
-        return this.managedHoursModel.findOne({ date: date, hour: hour, status: status });
-    }
-
-    public async createReservationHour(newReservationData: IManagedHours) {
+    public async createReservationHour(newReservationData: IManagedHours): Promise<IManagedHoursModel> {
         const newReservation = new this.managedHoursModel(newReservationData);
         return newReservation.save();
     }
 
-    public async changeStatus(eventId: string, newStatus: number) {
+    public async changeStatus(eventId: string, newStatus: number): Promise<IManagedHoursModel | null> {
         return this.managedHoursModel.findOneAndUpdate({ _id: eventId }, { $set: { status: newStatus } }, { new: true });
     }
 
@@ -26,16 +22,12 @@ class ManagedHoursService {
         return this.managedHoursModel.find({ userId: userId, status: status });
     }
 
-    public deleteReservation(eventId: string) {
+    public async deleteReservation(eventId: string): Promise<IManagedHoursModel | null> {
         return this.managedHoursModel.findByIdAndRemove(eventId);
     }
 
-    public findEventsByDateAndStatus(date: Date, status: number) {
+    public async findEventsByDateAndStatus(date: Date, status: number): Promise<IManagedHoursModel[]> {
         return this.managedHoursModel.find({date: date, status: status});
-    }
-
-    public findEventsByStatus(status: number) {
-        return this.managedHoursModel.find({status: status});
     }
 }
 

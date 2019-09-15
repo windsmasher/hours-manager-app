@@ -19,11 +19,9 @@ class WorkHoursController implements IController {
     }
 
     private setWorkHours = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-
-        const approvedReservations = await this.managedHoursService.findEventsByStatus(2);
-        const reservations = await this.managedHoursService.findEventsByStatus(1);
+        const approvedReservations = await this.managedHoursService.findEventsByStatusAndUserId(2, null);
+        const reservations = await this.managedHoursService.findEventsByStatusAndUserId(1, null);
         if (approvedReservations.length || reservations.length) return response.status(409).send("Delete all reservations before changing work hours.")
-
         try {
             const savedWorkHours = await this.workHoursService.cleanCollectionAndCreateWorkHours(request.body);
             response.send(savedWorkHours);

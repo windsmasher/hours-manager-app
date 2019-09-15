@@ -4,7 +4,7 @@ import IWorkHours from "./workHours.interface";
 class WorkHoursService {
     public workHoursModel = WorkHoursModel;
 
-    public async cleanCollectionAndCreateWorkHours(workHoursData: IWorkHours) {
+    public async cleanCollectionAndCreateWorkHours(workHoursData: IWorkHours): Promise<IWorkHours> {
         await this.workHoursModel.remove({});
         const workHours = await new this.workHoursModel(workHoursData);
         return workHours.save();

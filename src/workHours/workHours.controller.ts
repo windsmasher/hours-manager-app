@@ -1,10 +1,10 @@
-import Controller from "../interfaces/controller.interface";
+import IController from "../interfaces/controller.interface";
 import express from "express";
 import adminAuth from "../middleware/adminAuth.middleware";
 import WorkHoursService from "./workHours.service";
 import ManagedHoursService from "../managedHours/managedHours.service";
 
-class WorkHoursController implements Controller {
+class WorkHoursController implements IController {
     public path = "/workhours";
     public router = express.Router();
     private workHoursService = new WorkHoursService();

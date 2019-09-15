@@ -1,4 +1,4 @@
-import Controller from "../interfaces/controller.interface";
+import IController from "../interfaces/controller.interface";
 import express from "express";
 import adminAuth from "../middleware/adminAuth.middleware";
 import userAuth from "../middleware/userAuth.middleware";
@@ -10,7 +10,7 @@ import StatisticUtilites from "./utilities/statistic.utility";
 import ListingReservationsUtility from "./utilities/listingReservations.utility";
 import IRequestWithUser from "../interfaces/requestWithUser.interface";
 
-class ManagedHoursController implements Controller {
+class ManagedHoursController implements IController {
     public path = "/managedhours";
     public router = express.Router();
     private managedHoursService = new ManagedHoursService();

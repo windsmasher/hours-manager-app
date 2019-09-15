@@ -3,10 +3,10 @@ import userValidation from "../middleware/userValidation.middleware";
 import AuthenticationService from './authentication.service';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Controller from "../interfaces/controller.interface";
+import IController from "../interfaces/controller.interface";
 import { IUserModel } from "../user/user.interface";
 
-class AuthenticationController implements Controller {
+class AuthenticationController implements IController {
     public path = "/auth";
     public router = express.Router();
     public authenticationService = new AuthenticationService();

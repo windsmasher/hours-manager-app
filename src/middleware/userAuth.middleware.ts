@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import express from "express"
-import userModel from '../user/user.model';
+import UserModel from '../user/user.model';
 import IRequestWithUser from "../interfaces/requestWithUser.interface";
 import IIdStoredInToken from "../interfaces/idStoredInToken.interface";
 
@@ -9,7 +9,7 @@ const userAuth = async (request: IRequestWithUser, response: express.Response, n
     if (!token) return response.status(401).send("Access denied.");
     try {
         const verificationResponse = jwt.verify(token, <string>process.env.TOKEN_SECRET) as IIdStoredInToken;
-        const user = await userModel.findById(verificationResponse._id);
+        const user = await UserModel.findById(verificationResponse._id);
         if (user) {
             request.user = user;
             next();
